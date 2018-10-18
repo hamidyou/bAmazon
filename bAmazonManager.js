@@ -146,20 +146,35 @@ const menu = () => {
       {
         type: `rawlist`,
         name: `menu`,
-        choices: [`View Products for Sale`, `View Low Inventory`, `Add to Inventory`, `Add New Product`],
+        choices: [
+          {
+            name: `View Products for Sale`,
+            value: `viewProducts`
+          },
+          {
+            name: `View Low Inventory`,
+            value: `viewLow`
+          },
+          {
+            name: `Add to Inventory`,
+            value: `update`
+          },
+          {
+            name: `Add New Product`,
+            value: `addNew`
+          }],
         message: `Please make your selection.`
       }
     ])
     .then(response => {
-      if (response.menu === `View Products for Sale`) {
-        view()
-      } else if (response.menu === `View Low Inventory`) {
-        low()
-      } else if (response.menu === `Add to Inventory`) {
-        update()
-      } else if (response.menu === `Add New Product`) {
-        addNew()
+      const options = {
+        viewProducts: view(),
+        viewLow: low(),
+        update: update(),
+        addNew: addNew()
       }
+
+      options.response.menu()
     })
 }
 
