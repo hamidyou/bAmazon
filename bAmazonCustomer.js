@@ -1,5 +1,5 @@
 const connection = require('./connection')
-const { map, prop, includes, compose } = require('kyanite/dist/kyanite')
+const { map, round } = require('kyanite/dist/kyanite')
 const inquirer = require('inquirer')
 
 const printProduct = x => {
@@ -12,30 +12,31 @@ const printProduct = x => {
 }
 
 const processOrder = (id, quantity) => {
-  connection.query(
-    `UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?`, [quantity, id],
-    function (err, res) {
-      if (err) throw err
-      console.log(`Thank you for your order!
+  const sql = `UPDATE ?? SET stock_quantity = stock_quantity - ?, product_sales = product_sales + (price * ?) WHERE item_id = ?;`
+  const inserts = [`products`, quantity, quantity, id]
+  connection.query(sql, inserts, (err, res) => {
+    if (err) throw err
+    console.log(`Thank you for your order!
       `)
-    })
+  })
 }
 
 const availability = (id, quantity) => {
-  connection.query(`SELECT stock_quantity, price FROM products WHERE item_id = ?`, [id],
-    (err, res) => {
+  const sql = `SELECT stock_quantity, price FROM products WHERE item_id = ?`
+  const inserts = `${id}`
+  connection.query(sql, inserts, (err, res) => {
+    if (err) throw err
+    if (res[0].stock_quantity < quantity) {
+      console.log(`Unfortunately, we do not have enough in stock to meet your order.`)
+    } else {
+      const total = round(2, quantity * res[0].price)
+      processOrder(id, quantity)
+      console.log(`\nYour total is $${total}. `)
+    }
+    connection.end(err => {
       if (err) throw err
-      if (res[0].stock_quantity < quantity) {
-        console.log(`Unfortunately, we do not have enough in stock to meet your order.`)
-      } else {
-        const total = quantity * res[0].price
-        processOrder(id, quantity)
-        console.log(`\nYour total is $${total}. `)
-      }
-      connection.end(err => {
-        if (err) throw err
-      })
     })
+  })
 }
 
 const orderQuestions = () => {
@@ -81,10 +82,11 @@ const readProducts = () => {
       map(x => printProduct(x), res)
       connection.end(err => {
         if (err) throw err
-        console.log(`connection terminated`)
       })
     }
   )
 }
 
 orderQuestions()
+
+module.exports = printProduct
