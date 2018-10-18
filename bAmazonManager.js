@@ -2,7 +2,7 @@ const connection = require('./connection')
 const { map } = require('kyanite/dist/kyanite')
 const inquirer = require('inquirer')
 
-const printProduct = x => {
+const print = x => {
   console.log(`
   *********************************************
 
@@ -17,7 +17,7 @@ const view = () => {
   const inserts = `products`
   connection.query(sql, inserts, (err, res) => {
     if (err) throw err
-    map(x => printProduct(x), res)
+    map(x => print(x), res)
     connection.end(err => {
       if (err) throw err
     })
@@ -29,7 +29,7 @@ const low = () => {
   const inserts = [`products`, `stock_quantity`, 5]
   connection.query(sql, inserts, (err, res) => {
     if (err) throw err
-    map(x => printProduct(x), res)
+    map(x => print(x), res)
     connection.end(err => {
       if (err) throw err
     })
@@ -107,12 +107,12 @@ const addNew = () => {
         type: `input`,
         name: `quantity`,
         message: `What is the quantity you would like to add?`,
-        filter: input => {
+        validate: input => {
           const regex = /[0-9]/
           if (!regex.test(input)) {
-            console.log(`Please enter a number.`)
+            return `Please enter a number.`
           } else {
-            return input
+            return true
           }
         }
       },
@@ -125,12 +125,12 @@ const addNew = () => {
         type: `input`,
         name: `price`,
         message: `What is the price for one unit of this item?`,
-        filter: input => {
+        validate: input => {
           const regex = /[0-9].+/
           if (!regex.test(input)) {
-            console.log(`Please enter a valid amount.`)
+            return `Please enter a valid amount.`
           } else {
-            return input
+            return true
           }
         }
       }

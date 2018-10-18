@@ -2,7 +2,7 @@ const connection = require('./connection')
 const { map } = require('kyanite/dist/kyanite')
 const inquirer = require('inquirer')
 
-const printProduct = x => {
+const print = x => {
   console.log(`
   *********************************************
 
@@ -21,7 +21,7 @@ ON d.department_name=p.department
 GROUP BY d.department_name`
   connection.query(sql, (err, res) => {
     if (err) throw err
-    map(x => printProduct(x), res)
+    map(x => print(x), res)
     connection.end(err => {
       if (err) throw err
     })
@@ -51,7 +51,15 @@ const addDept = () => {
       {
         type: `input`,
         name: `overHead`,
-        message: `What are the overhead costs for this department?`
+        message: `What are the overhead costs for this department?`,
+        validate: input => {
+          const regex = /[0-9]/
+          if (!regex.test(input)) {
+            return `Please enter a number.`
+          } else {
+            return true
+          }
+        }
       }
     ])
     .then(response => {

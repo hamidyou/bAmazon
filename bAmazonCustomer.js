@@ -2,7 +2,7 @@ const connection = require('./connection')
 const { map, round } = require('kyanite/dist/kyanite')
 const inquirer = require('inquirer')
 
-const printProduct = x => {
+const print = x => {
   console.log(`
   *********************************************
 
@@ -40,53 +40,50 @@ const availability = (id, quantity) => {
 }
 
 const orderQuestions = () => {
-  inquirer
-    .prompt([
-      {
-        type: `input`,
-        name: `id`,
-        message: `What is the ID of the product you wish to buy?`,
-        filter: input => {
-          const regex = /[0-9]/
-          if (!regex.test(input)) {
-            console.log(`
-            Please enter a valid item_id`)
+  readProducts()
+    .then(() => {
+      inquirer
+        .prompt([
+          {
+            type: `input`,
+            name: `id`,
+            message: `What is the ID of the product you wish to buy?`,
+            validate: input => {
+              const regex = /[0-9]/
+              if (!regex.test(input)) {
+                return `Please enter a valid item_id`
+              }
+              return true
+            }
+          },
+          {
+            type: `input`,
+            name: `quantity`,
+            message: `What is the quantity you would like to order?`,
+            validate: input => {
+              const regex = /[0-9]/
+              if (!regex.test(input)) {
+                return `Please enter a number.`
+              } else {
+                return true
+              }
+            }
           }
-          return input
-        }
-      },
-      {
-        type: `input`,
-        name: `quantity`,
-        message: `What is the quantity you would like to order?`,
-        filter: input => {
-          const regex = /[0-9]/
-          if (!regex.test(input)) {
-            console.log(`Please enter a number.`)
-          } else {
-            return input
-          }
-        }
-      }
-    ])
-    .then(response => {
-      availability(response.id, response.quantity)
+        ])
+        .then(response => {
+          availability(response.id, response.quantity)
+        })
     })
 }
 
 const readProducts = () => {
-  connection.query(
-    `SELECT * FROM products`,
-    function (err, res) {
-      if (err) throw err
-      map(x => printProduct(x), res)
-      connection.end(err => {
-        if (err) throw err
-      })
-    }
-  )
+  return new Promise((resolve, reject) => {
+    connection.query(`SELECT * FROM products`, (err, res) => {
+      if (err) reject(err)
+      map(x => print(x), res)
+      resolve()
+    })
+  })
 }
 
 orderQuestions()
-
-module.exports = printProduct
