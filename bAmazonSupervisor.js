@@ -53,7 +53,7 @@ const addDept = () => {
         name: `overHead`,
         message: `What are the overhead costs for this department?`,
         validate: input => {
-          const regex = /[0-9]/
+          const regex = /[0-9][^a-z]./i
           if (!regex.test(input)) {
             return `Please enter a number.`
           } else {

@@ -56,7 +56,7 @@ const update = () => {
         name: `id`,
         message: `What is the ID of the product you wish to add to?`,
         validate: input => {
-          const regex = /[0-9]/
+          const regex = /[0-9][^a-z]/i
           if (!regex.test(input) || input < 1) {
             return `Please enter a valid item_id`
           }
@@ -68,7 +68,7 @@ const update = () => {
         name: `quantity`,
         message: `What is the quantity you would like to add?`,
         validate: input => {
-          const regex = /[0-9]/
+          const regex = /[0-9][^a-z]/i
           if (!regex.test(input) || input < 1) {
             return `Please enter a number.`
           } else {
@@ -107,7 +107,7 @@ const addNew = () => {
         name: `quantity`,
         message: `What is the quantity you would like to add?`,
         validate: input => {
-          const regex = /[0-9]/
+          const regex = /[0-9][^a-z]/i
           if (!regex.test(input)) {
             return `Please enter a number.`
           } else {
@@ -125,7 +125,7 @@ const addNew = () => {
         name: `price`,
         message: `What is the price for one unit of this item?`,
         validate: input => {
-          const regex = /[0-9].+/
+          const regex = /[0-9][^a-z]./i
           if (!regex.test(input)) {
             return `Please enter a valid amount.`
           } else {

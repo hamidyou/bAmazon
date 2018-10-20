@@ -1,5 +1,5 @@
 const connection = require('./connection')
-const { map, round } = require('kyanite/dist/kyanite')
+const { map, round, prop, or, includes, compose, path } = require('kyanite/dist/kyanite')
 const inquirer = require('inquirer')
 
 const print = x => {
@@ -49,9 +49,8 @@ const orderQuestions = () => {
             name: `id`,
             message: `What is the ID of the product you wish to buy?`,
             validate: input => {
-              // ZERO, negative
-              const regex = /[0-9]/
-              if (!regex.test(input)) {
+              const regex = /[0-9][^a-z]/i
+              if (or(!regex.test(input), input < 1)) {
                 return `Please enter a valid item_id`
               }
               return true
@@ -63,9 +62,9 @@ const orderQuestions = () => {
             message: `What is the quantity you would like to order?`,
             validate: input => {
               // ZERO, negative
-              const regex = /[0-9]/
-              if (!regex.test(input)) {
-                return `Please enter a number.`
+              const regex = /[0-9][^a-z]/i
+              if (or(!regex.test(input), input < 1)) {
+                return `Please enter a valid quantity.`
               } else {
                 return true
               }
@@ -89,3 +88,4 @@ const readProducts = () => {
 }
 
 orderQuestions()
+// console.log(validIds())
