@@ -55,25 +55,24 @@ const update = () => {
         type: `input`,
         name: `id`,
         message: `What is the ID of the product you wish to add to?`,
-        filter: input => {
+        validate: input => {
           const regex = /[0-9]/
-          if (!regex.test(input)) {
-            console.log(`
-            Please enter a valid item_id`)
+          if (!regex.test(input) || input < 1) {
+            return `Please enter a valid item_id`
           }
-          return input
+          return true
         }
       },
       {
         type: `input`,
         name: `quantity`,
         message: `What is the quantity you would like to add?`,
-        filter: input => {
+        validate: input => {
           const regex = /[0-9]/
-          if (!regex.test(input)) {
-            console.log(`Please enter a number.`)
+          if (!regex.test(input) || input < 1) {
+            return `Please enter a number.`
           } else {
-            return input
+            return true
           }
         }
       }
@@ -168,13 +167,13 @@ const menu = () => {
     ])
     .then(response => {
       const options = {
-        viewProducts: view(),
-        viewLow: low(),
-        update: update(),
-        addNew: addNew()
+        viewProducts: view,
+        viewLow: low,
+        update: update,
+        addNew: addNew
       }
 
-      options.response.menu()
+      options[response.menu]()
     })
 }
 

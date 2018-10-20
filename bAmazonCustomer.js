@@ -49,6 +49,7 @@ const orderQuestions = () => {
             name: `id`,
             message: `What is the ID of the product you wish to buy?`,
             validate: input => {
+              // ZERO, negative
               const regex = /[0-9]/
               if (!regex.test(input)) {
                 return `Please enter a valid item_id`
@@ -61,6 +62,7 @@ const orderQuestions = () => {
             name: `quantity`,
             message: `What is the quantity you would like to order?`,
             validate: input => {
+              // ZERO, negative
               const regex = /[0-9]/
               if (!regex.test(input)) {
                 return `Please enter a number.`
