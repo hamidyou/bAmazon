@@ -1,5 +1,5 @@
 const connection = require('./connection')
-const { map } = require('kyanite/dist/kyanite')
+const { map, or, includes, prop } = require('kyanite/dist/kyanite')
 const inquirer = require('inquirer')
 
 const print = x => {
@@ -10,6 +10,17 @@ const print = x => {
   Product: ${x.product_name}
   Price: $${x.price}
   Quantity: ${x.stock_quantity}`)
+}
+
+let validIds = []
+
+const getValidIds = () => {
+  connection.query('SELECT * FROM products', (err, res) => {
+    if (err) {
+      throw err
+    }
+    validIds = map(x => prop('item_id', x), res)
+  })
 }
 
 const view = () => {
@@ -49,6 +60,7 @@ const updateQuery = (id, quantity) => {
 }
 
 const update = () => {
+  getValidIds()
   inquirer
     .prompt([
       {
@@ -56,11 +68,12 @@ const update = () => {
         name: `id`,
         message: `What is the ID of the product you wish to add to?`,
         validate: input => {
-          const regex = /[0-9][^a-z]/i
-          if (!regex.test(input) || input < 1) {
-            return `Please enter a valid item_id`
+          const regex = /[^0-9]/g
+          if (or(!includes(Number(input), validIds), or(regex.test(input), input < 1))) {
+            return `Please enter a valid item ID.`
+          } else {
+            return true
           }
-          return true
         }
       },
       {
@@ -68,8 +81,8 @@ const update = () => {
         name: `quantity`,
         message: `What is the quantity you would like to add?`,
         validate: input => {
-          const regex = /[0-9][^a-z]/i
-          if (!regex.test(input) || input < 1) {
+          const regex = /[^0-9]/g
+          if (regex.test(input) || input < 1) {
             return `Please enter a number.`
           } else {
             return true
@@ -107,8 +120,8 @@ const addNew = () => {
         name: `quantity`,
         message: `What is the quantity you would like to add?`,
         validate: input => {
-          const regex = /[0-9][^a-z]/i
-          if (!regex.test(input)) {
+          const regex = /[^0-9]/g
+          if (regex.test(input)) {
             return `Please enter a number.`
           } else {
             return true
@@ -125,8 +138,8 @@ const addNew = () => {
         name: `price`,
         message: `What is the price for one unit of this item?`,
         validate: input => {
-          const regex = /[0-9][^a-z]./i
-          if (!regex.test(input)) {
+          const regex = /[^0-9]/g
+          if (regex.test(input)) {
             return `Please enter a valid amount.`
           } else {
             return true
